@@ -1,0 +1,28 @@
+name: CDD CloudFormation Deploy (dev)
+on:
+    push:
+      branches:
+        - main
+      paths:
+        - "src/**"
+        - "parameters/dev/**"
+        - "scripts/deploy.sh"
+        - ".github/workflows/cfn-deploy*.yml"
+    workflow_dispatch: {}
+
+Permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/cfn-deploy-reusable.yml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      deploy_env: d00
+      param_env: dev
+      aws_account_id: "*******************" #後で埋める
+      aws_role_arn: "arn:aws:iam::*******************:role/*******************" #後で埋める
+      approval_environment: cdd-deploy-approval-dev

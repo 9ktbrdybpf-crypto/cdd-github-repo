@@ -1,0 +1,144 @@
+name: CDD CloudFormation Deploy (reusable)
+on:
+    workflow_call:
+        inputs:
+         deploy_env:
+           description: リソース名・ロール名用の環境識別子(d00 / c01)
+           required: true
+           type: string
+         param_env:
+           description: パラメータ格納フォルダ名(dev / prod)
+           required: true
+           type: string
+         aws_account_id:
+            description: AWSアカウントID
+            required: true
+            type: string
+         aws_role_arn:
+            description: OIDCで引き受けるGithub Actions用のロールARN
+            required: true
+            type: string
+         approval_environment:
+            description: 承認用Github Environment名
+            required: true
+            type: string
+
+Permissions:
+    contents: read
+
+concurrency:
+    group: cdd-cfn-deploy-${{ inputs.deploy_env }}
+    cancel-in-progress: false
+
+env:
+    AWS_REGION: ap-northeast-1
+
+jobs:
+    create-change-set:
+        name: Create CloudFormation Change Sets
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
+        outputs:
+            change_set_name: ${{ steps.create.outputs.changes_found }}
+        env:
+            AWS_ACCOUNT_ID: ${{ inputs.aws_account_id }}
+            DEPLOY_ENV: ${{ inputs.deploy_env }}
+            PARAM_ENV: ${{ inputs.param_env }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@<commit-sha>
+
+            - name: Configure AWS Credentials using OIDC
+              uses: aws-actions/configure-aws-credentials@<commit-sha>
+              with:
+                  role-to-assume: ${{ inputs.aws_role_arn }}
+                  aws-region: ${{ env.AWS_REGION }}
+                  role-session-name: github-actions-${{ github.run_id }}
+
+            - name: Validate caller identity
+              run: aws sts get-caller-identity
+            
+            - name: Validate CloudFormation template
+              run: bash .github/scripts/deploy.sh validate
+            
+            - name: Create CloudFormation Change Sets
+              id: create
+              env:
+                  CHANGE_SET_SUFFIX: ${{ github.run_id }}-${{ github.run_attempt }}
+              run: bash .github/scripts/deploy.sh create
+
+            - name: Upload Change Set manifest
+              if: always()
+              uses: actions/upload-artifact@<commit-sha>
+              with:
+                  name: cloudformaition-change-sets
+                  path: change-sets.tsv
+                  if-no-files-found: error
+                  retention-days: 7
+    
+    approve-and-deploy:
+        name: Approve and Execute Change Sets
+        needs: create-change-sets
+        if: needs.create-change-sets.outputs.changes_found == 'true'
+        environment: ${{ inputs.approval_environment }}
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
+        env:
+            AWS_ACCOUNT_ID: ${{ inputs.aws_account_id }}
+            DEPLOY_ENV: ${{ inputs.deploy_env }}
+            PARAM_ENV: ${{ inputs.param_env }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@<commit-sha>
+            
+            - name: Download Change Set manifest
+              uses: actions/download-artifact@<commit-sha>
+              with:
+                  name: cloudformaition-change-sets
+                  path: .
+            
+            - name: Configure AWS Credentials using OIDC
+              uses: aws-actions/configure-aws-credentials@<commit-sha>
+              with:
+                  role-to-assume: ${{ inputs.aws_role_arn }}
+                  aws-region: ${{ env.AWS_REGION }}
+                  role-session-name: github-actions-cdd-execute-${{ github.run_id }}
+            
+            - name: Execute approved Change Sets
+              run: bash ./scripts/deploy.sh execute
+
+    cleanup:
+        name: Delete unexecuted Change Sets
+        needs: [create-change-sets, approve-and-deploy]
+        if: always() && needs.create-change-sets.outputs.changes_found == 'true' && needs.approve-and-deploy.result != 'success'
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
+        env:
+            AWS_ACCOUNT_ID: ${{ inputs.aws_account_id }}
+            DEPLOY_ENV: ${{ inputs.deploy_env }}
+            PARAM_ENV: ${{ inputs.param_env }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@<commit-sha>
+           
+            - name: Download Change Set manifest
+              uses: actions/download-artifact@<commit-sha>
+              with:
+                  name: cloudformation-change-sets
+                  path: .
+
+            - name: Configure AWS Credentials using OIDC
+              uses: aws-actions/configure-aws-credentials@<commit-sha>
+              with:
+                  role-to-assume: ${{ inputs.aws_role_arn }}
+                  aws-region: ${{ env.AWS_REGION }}
+                  role-session-name: github-actions-cdd-cleanup-${{ github.run_id }}
+            
+            - name: Delete unexecuted Change Sets
+              run: bash ./scripts/deploy.sh cleanup
