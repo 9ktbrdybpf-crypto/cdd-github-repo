@@ -144,7 +144,7 @@ append_change_set_summary() {
 validate_templates() {
   local template found=false
   log "Validating CloudFormation templates..."
-  while IFS= read -r template; do
+  while IFS= read -r -d '' template; do
     found=true
     log "Validating: ${template}"
     aws cloudformation validate-template \
