@@ -23,6 +23,6 @@ jobs:
     with:
       deploy_env: d00
       param_env: dev
-      aws_account_id: "*******************" #後で埋める
-      aws_role_arn: "arn:aws:iam::*******************:role/*******************" #後で埋める
+      aws_account_id: "850995570478"
+      aws_role_arn: "arn:aws:iam::850995570478:role/cdd-d00-iam-role-github-action-infra"
       approval_environment: cdd-deploy-approval-dev
