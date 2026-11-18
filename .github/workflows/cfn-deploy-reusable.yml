@@ -48,10 +48,10 @@ jobs:
             PARAM_ENV: ${{ inputs.param_env }}
         steps:
             - name: Checkout
-              uses: actions/checkout@<commit-sha>
+              uses: actions/checkout@v4
 
             - name: Configure AWS Credentials using OIDC
-              uses: aws-actions/configure-aws-credentials@<commit-sha>
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ inputs.aws_role_arn }}
                   aws-region: ${{ env.AWS_REGION }}
@@ -71,7 +71,7 @@ jobs:
 
             - name: Upload Change Set manifest
               if: always()
-              uses: actions/upload-artifact@<commit-sha>
+              uses: actions/upload-artifact@v4
               with:
                   name: cloudformation-change-sets
                   path: change-sets.tsv
@@ -93,16 +93,16 @@ jobs:
             PARAM_ENV: ${{ inputs.param_env }}
         steps:
             - name: Checkout repository
-              uses: actions/checkout@<commit-sha>
+              uses: actions/checkout@v4
             
             - name: Download Change Set manifest
-              uses: actions/download-artifact@<commit-sha>
+              uses: actions/download-artifact@v4
               with:
-                  name: cloudformaition-change-sets
+                  name: cloudformation-change-sets
                   path: .
             
             - name: Configure AWS Credentials using OIDC
-              uses: aws-actions/configure-aws-credentials@<commit-sha>
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ inputs.aws_role_arn }}
                   aws-region: ${{ env.AWS_REGION }}
@@ -125,16 +125,16 @@ jobs:
             PARAM_ENV: ${{ inputs.param_env }}
         steps:
             - name: Checkout repository
-              uses: actions/checkout@<commit-sha>
+              uses: actions/checkout@v4
            
             - name: Download Change Set manifest
-              uses: actions/download-artifact@<commit-sha>
+              uses: actions/download-artifact@v4
               with:
                   name: cloudformation-change-sets
                   path: .
 
             - name: Configure AWS Credentials using OIDC
-              uses: aws-actions/configure-aws-credentials@<commit-sha>
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ inputs.aws_role_arn }}
                   aws-region: ${{ env.AWS_REGION }}
