@@ -123,8 +123,8 @@ append_change_set_summary() {
  {
   echo "## CloudFormation Change Set "
   echo ""
-  echo "- **Stack**: `${stack_name}`"
-  echo "- **change set**: `${change_set_name}`"
+  echo "- **Stack**: \`${stack_name}\`"
+  echo "- **change set**: \`${change_set_name}\`"
   echo ""
   if [[ "${destructive_count}" -gt 0 ]]; then
     echo "> [!WARNING]"
@@ -135,7 +135,7 @@ append_change_set_summary() {
   echo "| Action | Logical resource | Resource type | Replacement | "
   echo "|---|---|---|---|" 
   jq -r '.[] | .ResourceChange |
-    "| \(.Action // "-") | `\(.LogicalResourceId // "-")` | `\(.ResourceType // "-")` | \(Replacement // "-") |"' \
+    "| \(.Action // "-") | `\(.LogicalResourceId // "-")` | `\(.ResourceType // "-")` | \(.Replacement // "-") |"' \
     <<< "${changes_json}"
   echo ""
  } >> "${GITHUB_STEP_SUMMARY}"
