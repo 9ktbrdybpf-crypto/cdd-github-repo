@@ -41,7 +41,7 @@ jobs:
             id-token: write
             contents: read
         outputs:
-            change_set_name: ${{ steps.create.outputs.changes_found }}
+            changes_found: ${{ steps.create.outputs.changes_found }}
         env:
             AWS_ACCOUNT_ID: ${{ inputs.aws_account_id }}
             DEPLOY_ENV: ${{ inputs.deploy_env }}

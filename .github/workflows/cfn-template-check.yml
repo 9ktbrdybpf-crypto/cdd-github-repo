@@ -21,7 +21,7 @@ jobs:
 
       - name: cfn-lint
         run: |
-            mapfile -t templates < <(find . -type f \( -name '*.yaml' -o -name '*.yml' \))
+            mapfile -t templates < <(find src -type f \( -name '*.yaml' -o -name '*.yml' \))
             if [ ${#templates[@]} -eq 0 ]; then
                 echo "No CloudFormation templates under src/."
             else

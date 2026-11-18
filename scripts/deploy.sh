@@ -73,7 +73,7 @@ get_parametersfile() {
   filename="$(basename "$1")"
   filename="${filename%.yaml}"
   filename="${filename%.yml}"
-  local.path="${PARAMETER_DIRECTORY}/${PARAM_ENV}/${filename}.json"
+  local path="${PARAMETER_DIRECTORY}/${PARAM_ENV}/${filename}.json"
   if [[ -f "${path}" ]]; then
     printf '%s' "${path}"
   fi
@@ -88,7 +88,7 @@ get_stack_status() {
 
 wait_for_change_set() {
   local stack_name="$1" change_set_name="$2" status reason
-  for _ in {seq 1 60}; do
+  for _ in $(seq 1 60); do
     status="$(aws cloudformation describe-change-set \
       --stack-name "${stack_name}" --change-set-name "${change_set_name}" \
       --region "${AWS_REGION}" --query 'Status' --output text)"
