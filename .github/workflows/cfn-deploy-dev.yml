@@ -3,6 +3,7 @@ on:
     push:
       branches:
         - main
+        - feature/actions-oidcconnect-test
       paths:
         - "src/**"
         - "parameters/dev/**"
