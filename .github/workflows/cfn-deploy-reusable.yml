@@ -61,7 +61,7 @@ jobs:
               run: aws sts get-caller-identity
             
             - name: Validate CloudFormation template
-              run: bash .github/scripts/deploy.sh validate
+              run: bash ./scripts/deploy.sh validate
             
             - name: Create CloudFormation Change Sets
               id: create
@@ -73,7 +73,7 @@ jobs:
               if: always()
               uses: actions/upload-artifact@<commit-sha>
               with:
-                  name: cloudformaition-change-sets
+                  name: cloudformation-change-sets
                   path: change-sets.tsv
                   if-no-files-found: error
                   retention-days: 7

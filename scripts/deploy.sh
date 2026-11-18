@@ -292,7 +292,7 @@ cleanup_change_sets() {
     log "Deleting Change Set: ${stack_name}/${change_set_name}"
     aws cloudformation delete-change-set \
       --stack-name "${stack_name}" --change-set-name "${change_set_name}" \
-      --region "${AWS_REGION}" || log "Skip (already executed or deleted).
+      --region "${AWS_REGION}" || log "Skip (already executed or deleted)."
   done < "${MANIFEST_FILE}"
 }
 
