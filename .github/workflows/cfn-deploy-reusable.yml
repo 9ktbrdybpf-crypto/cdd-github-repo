@@ -23,7 +23,7 @@ on:
             required: true
             type: string
 
-Permissions:
+permissions:
     contents: read
 
 concurrency:
@@ -67,7 +67,7 @@ jobs:
               id: create
               env:
                   CHANGE_SET_SUFFIX: ${{ github.run_id }}-${{ github.run_attempt }}
-              run: bash .github/scripts/deploy.sh create
+              run: bash ./scripts/deploy.sh create
 
             - name: Upload Change Set manifest
               if: always()
@@ -80,8 +80,8 @@ jobs:
     
     approve-and-deploy:
         name: Approve and Execute Change Sets
-        needs: create-change-sets
-        if: needs.create-change-sets.outputs.changes_found == 'true'
+        needs: create-change-set
+        if: needs.create-change-set.outputs.changes_found == 'true'
         environment: ${{ inputs.approval_environment }}
         runs-on: ubuntu-latest
         permissions:
@@ -113,8 +113,8 @@ jobs:
 
     cleanup:
         name: Delete unexecuted Change Sets
-        needs: [create-change-sets, approve-and-deploy]
-        if: always() && needs.create-change-sets.outputs.changes_found == 'true' && needs.approve-and-deploy.result != 'success'
+        needs: [create-change-set, approve-and-deploy]
+        if: always() && needs.create-change-set.outputs.changes_found == 'true' && needs.approve-and-deploy.result != 'success'
         runs-on: ubuntu-latest
         permissions:
             id-token: write

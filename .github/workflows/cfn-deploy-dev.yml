@@ -10,7 +10,7 @@ on:
         - ".github/workflows/cfn-deploy*.yml"
     workflow_dispatch: {}
 
-Permissions:
+permissions:
   id-token: write
   contents: read
 
