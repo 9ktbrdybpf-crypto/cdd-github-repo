@@ -48,10 +48,10 @@ jobs:
             PARAM_ENV: ${{ inputs.param_env }}
         steps:
             - name: Checkout
-              uses: actions/checkout@b4ffde65f46336ab88eb53cc41df481d5283597f
+              uses: actions/checkout@v4
 
             - name: Configure AWS Credentials using OIDC
-              uses: aws-actions/configure-aws-credentials@e3400d7d9e2e3c08fd6474fa4f7e1b6e6eb5a24c
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ inputs.aws_role_arn }}
                   aws-region: ${{ env.AWS_REGION }}
@@ -71,7 +71,7 @@ jobs:
 
             - name: Upload Change Set manifest
               if: always()
-              uses: actions/upload-artifact@50769540e7f4bd5e21e526ee9c6019cd0e18ea4e
+              uses: actions/upload-artifact@v4
               with:
                   name: cloudformation-change-sets
                   path: change-sets.tsv
@@ -93,16 +93,16 @@ jobs:
             PARAM_ENV: ${{ inputs.param_env }}
         steps:
             - name: Checkout repository
-              uses: actions/checkout@b4ffde65f46336ab88eb53cc41df481d5283597f
+              uses: actions/checkout@v4
 
             - name: Download Change Set manifest
-              uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+              uses: actions/download-artifact@v4
               with:
                   name: cloudformation-change-sets
                   path: .
 
             - name: Configure AWS Credentials using OIDC
-              uses: aws-actions/configure-aws-credentials@e3400d7d9e2e3c08fd6474fa4f7e1b6e6eb5a24c
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ inputs.aws_role_arn }}
                   aws-region: ${{ env.AWS_REGION }}
@@ -125,16 +125,16 @@ jobs:
             PARAM_ENV: ${{ inputs.param_env }}
         steps:
             - name: Checkout repository
-              uses: actions/checkout@b4ffde65f46336ab88eb53cc41df481d5283597f
+              uses: actions/checkout@v4
 
             - name: Download Change Set manifest
-              uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+              uses: actions/download-artifact@v4
               with:
                   name: cloudformation-change-sets
                   path: .
 
             - name: Configure AWS Credentials using OIDC
-              uses: aws-actions/configure-aws-credentials@e3400d7d9e2e3c08fd6474fa4f7e1b6e6eb5a24c
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ inputs.aws_role_arn }}
                   aws-region: ${{ env.AWS_REGION }}
