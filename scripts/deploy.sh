@@ -1,4 +1,5 @@
 #!/bin/env bash
+# Retest trigger: verify updated IAM trust policy (ref + environment sub claims)
 set -Eeuo pipefail
 
 MODE="${1:-}"
