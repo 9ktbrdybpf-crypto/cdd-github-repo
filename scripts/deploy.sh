@@ -13,14 +13,14 @@ PARAMETER_DIRECTORY="parameters"
 INFRA_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/cdd-${DEPLOY_ENV}-iam-role-cfn-codepl"
 IAM_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/cdd-${DEPLOY_ENV}-iam-role-cfn-iam"
 
-CHANGE_SET_SUFFIX="${CHANGE_SET_SUFFIX:-manual-(date +%Y%m%d%H%M%S)}"
+CHANGE_SET_SUFFIX="${CHANGE_SET_SUFFIX:-manual-$(date +%Y%m%d%H%M%S)}"
 MANIFEST_FILE="${MANIFEST_FILE:-change-sets.tsv}"
 GITHUB_STEP_SUMMARY="${GITHUB_STEP_SUMMARY:-/dev/null}"
 
 log() { printf '%s\n' "$*"; }
 fail() { printf 'Error: %s\n' "$*" >&2; exit 1; }
 
-chdeck_requirements() {
+check_requirements() {
   command -v aws >/dev/null 2>&1 || fail "aws cli is not installed"
   command -v jq >/dev/null 2>&1 || fail "jq is not installed"
   aws sts get-caller-identity >/dev/null
@@ -68,7 +68,7 @@ get_capabilities() {
   fi
 }
 
-get_parametersfile() {
+get_parameters_file() {
   local filename
   filename="$(basename "$1")"
   filename="${filename%.yaml}"
@@ -154,7 +154,7 @@ validate_templates() {
   log "Template validation completed."
 }
 
-create_change_set() {
+create_change_set_for_template() {
   local template="$1"
   local stack_name role_arn capabilities parameters_file change_set_name change_set_type
   local stack_status result changes_json
@@ -215,7 +215,7 @@ create_change_set() {
         --query 'Changes' --output json)"
       printf '%s\t%s\t%s\n' "${stack_name}" "${change_set_name}" "${change_set_type}" \
         >> "${MANIFEST_FILE}"
-      append_changes_set_summary "${stack_name}" "${change_set_name}" "${changes_json}"
+      append_change_set_summary "${stack_name}" "${change_set_name}" "${changes_json}"
       log "Change set created successfully."
       ;;
     2)
@@ -248,6 +248,8 @@ create_change_set() {
 
   if [[ -s "${MANIFEST_FILE}" ]]; then
     echo "changes_found=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+    log "Deployable changes were found."
+  else
     log "No deployable changes were found."
   fi
 }
